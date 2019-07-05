@@ -1,37 +1,33 @@
-const todo = [{
-    text:'wash the dog',
-    isCompleted: false
-}, {
-    text: 'groceries',
-    isCompleted: true
-}, {
-    text: 'code',
-    isCompleted: false
-},{
-    text: 'cook',
-    isCompleted: true
-}, {
-    text:'do the dishes',
-    isCompleted: false
-}];
+let todo = [];
 
-//setup a div contain for todos
-//setup filters (searchText) and wire up a new filter input to change it
-// create a renderTodos function to render and rerender the latest filtered data
+
 const filters = {
     searchText: '',
     hideCompleted: false
 }
 
+const todoJSON = localStorage.getItem('todo')
+if(todoJSON != null) {
+    todo = JSON.parse(todoJSON)
+}
+
 const renderTodos = function (array, filters){
-    document.querySelector('#todo').innerHTML = ''
-    const filteredTodos = array.filter(function(item){
+    
+    let filteredTodos = array.filter(function(item){
         return item.text.toLowerCase().includes(filters.searchText.toLowerCase())
+    })
+
+    filteredTodos = filteredTodos.filter(function(todo){
+        if(filters.hideCompleted){
+            return !todo.isCompleted
+        } else {
+            return true
+        }
     })
     const incompleteTodos = filteredTodos.filter(function(item){
         return !item.isCompleted
     })
-    
+    document.querySelector('#todo').innerHTML = ''
     const summary = document.createElement('h2');
     summary.innerHTML = `you have ${incompleteTodos.length} todos left.`
     document.querySelector('#todo').appendChild(summary)
@@ -53,16 +49,14 @@ document.querySelector('#filter-todo').addEventListener('input', function(e){
 document.querySelector('#new-todo').addEventListener('submit', function(e){
     e.preventDefault();
     todo.push({text: e.target.elements.todoInput.value, isCompleted: false})
+    localStorage.setItem('todo',JSON.stringify(todo));
     e.target.elements.todoInput.value = ''
     renderTodos(todo, filters)
 })
 
-document.querySelector('#new-todo').addEventListener('change', function(e){
+document.querySelector('#hide-completed').addEventListener('change', function(e){
     e.preventDefault()
-    if(e.target.checked) {
-        filters.hideCompleted = !filters.hideCompleted
-    } else {
-        renderTodos(todo, filters)
-    }
+    filters.hideCompleted = e.target.checked
+    renderTodos(todo, filters)
 })
 

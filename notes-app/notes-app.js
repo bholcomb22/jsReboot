@@ -1,16 +1,14 @@
-const notes = [{
-    title: 'My next trip',
-    body: 'I would like to go to Spain'
-},{
-    title: 'Habbits to work on',
-    body: 'Exercise and eating better'
-},{
-    title: 'Office modification',
-    body: 'Get a new chair'
-}];
+let notes = [];
 
 const filters = {
     searchText: ''
+}
+
+//check for existing saved date 
+const notesJSON = localStorage.getItem('notes');
+
+if(notesJSON != null) {
+    notes = JSON.parse(notesJSON)
 }
 
 const renderNotes = function(notes, filters){
@@ -20,18 +18,33 @@ const renderNotes = function(notes, filters){
     })
     filteredNotes.forEach(function(item){
         const noteEl = document.createElement('p')
-        noteEl.innerHTML = item.title
+        if(item.title.length > 0){
+            noteEl.innerHTML = item.title
+        }else {
+            noteEl.textContent = 'Unnamed note'
+        }
+        
+        
         document.querySelector('#notes').appendChild(noteEl)
     }) 
 }
 renderNotes(notes, filters);
+
+document.querySelector('#create-note').addEventListener('click', function(e){
+    notes.push({
+        title: '',
+        body: ''
+    })
+    localStorage.setItem('notes', JSON.stringify(notes))
+    renderNotes(notes, filters)
+})
 
 document.querySelector('#search-text').addEventListener('input', function(e){
     filters.searchText = e.target.value
     renderNotes(notes, filters)
 })
 
-document.querySelector('#for-fun').addEventListener('change', function(e){
-    console.log(e.target.checked)
+document.querySelector('#filter-by').addEventListener('change', function(e){
+    console.log(e.target.value)
 })
 
