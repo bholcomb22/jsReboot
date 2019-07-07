@@ -9,6 +9,10 @@ const getSavedNotes = function() {
     }
 }
 
+const generateLastEdited = function(timestamp){
+    return `Last edited ${moment(timestamp).fromNow()}`
+}
+
 //save notes to local storage
 const saveNotes = function(notes){
     localStorage.setItem('notes', JSON.stringify(notes))
@@ -28,7 +32,7 @@ const removeNote = function(id){
 
 const generateNoteDOM = function (item){
     const noteEl = document.createElement('div')
-    const textEl = document.createElement('span')
+    const textEl = document.createElement('a')
     const button = document.createElement('button')
     //setup remove note button
     button.textContent = 'x'
@@ -44,6 +48,7 @@ const generateNoteDOM = function (item){
         }else {
             textEl.textContent = 'Unnamed note'
         }
+        textEl.href = `edit.html#${item.id}`
         noteEl.appendChild(textEl)
         return noteEl
 }
