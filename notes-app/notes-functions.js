@@ -1,28 +1,26 @@
+'use strict'
 // read existing notes from local storage
-const getSavedNotes = function() {
-    const notesJSON = localStorage.getItem('notes');
+const getSavedNotes = () => {
+    const notesJSON = localStorage.getItem('notes')
 
-    if(notesJSON != null) {
-        return JSON.parse(notesJSON)
-    } else {
+    try {
+        return notesJSON ? JSON.parse(notesJSON) : []
+    }catch (e) {
         return []
     }
+    
 }
 
-const generateLastEdited = function(timestamp){
-    return `Last edited ${moment(timestamp).fromNow()}`
-}
+const generateLastEdited = (timestamp) => `Last edited ${moment(timestamp).fromNow()}`
 
 //save notes to local storage
-const saveNotes = function(notes){
+const saveNotes = (notes) => {
     localStorage.setItem('notes', JSON.stringify(notes))
 }
 
 //delete a note
-const removeNote = function(id){
-    const noteIndex = notes.findIndex(function(note){
-        return note.id === id
-    })
+const removeNote = (id) => {
+    const noteIndex = notes.findIndex((note) => note.id === id)
     if(noteIndex > -1){
         notes.splice(noteIndex, 1)
     }
@@ -30,13 +28,13 @@ const removeNote = function(id){
 
 //generate the dom structure for a note
 
-const generateNoteDOM = function (item){
+const generateNoteDOM = (item) => {
     const noteEl = document.createElement('div')
     const textEl = document.createElement('a')
     const button = document.createElement('button')
     //setup remove note button
     button.textContent = 'x'
-    button.addEventListener('click', function(e){
+    button.addEventListener('click', (e) => {
         removeNote(item.id)
         saveNotes(notes)
         renderNotes(notes, filters)
@@ -52,14 +50,49 @@ const generateNoteDOM = function (item){
         noteEl.appendChild(textEl)
         return noteEl
 }
+//sort notes by one of three ways
+const sortNotes = (notes, sortBy) => {
+    if(sortBy === 'byEdited') {
+        return notes.sort((a, b) => {
+            if(a.updatedAt > b.updatedAt) {
+                return -1
+            } else if (a.updatedAt < b.updatedAt){
+                return 1
+            } else{
+                return 0
+            }
+        })
+    } else if(sortBy === 'byCreated'){
+        return notes.sort((a, b) => {
+            if (a.createdAt > b.createdAt){
+                return -1
+            }else if(a.createdAt < b.createdAt){
+                return 1
+            }else {
+                return 0
+            }
+        })
+    } else if (sortBy === 'alphabetical'){
+        return notes.sort((a, b) => {
+            if(a.title.toLowerCase() < b.title.toLowerCase()){
+                return -1
+            } else if (a.title.toLowerCase() > b.title.toLowerCase()){
+                return 1
+            } else {
+                return 0
+            }
+        })
+    } else {
+        return notes
+    }
+}
 
 //render function notes 
-const renderNotes = function(notes, filters){
+const renderNotes = (notes, filters) => {
+    notes = sortNotes(notes, filters.sortBy)
     document.querySelector('#notes').innerHTML = '';
-    const filteredNotes = notes.filter(function(note){
-        return note.title.toLowerCase().includes(filters.searchText.toLowerCase())
-    })
-    filteredNotes.forEach(function(item){
+    const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(filters.searchText.toLowerCase()))
+    filteredNotes.forEach((item) => {
         const noteEl = generateNoteDOM(item)
         document.querySelector('#notes').appendChild(noteEl)
     }) 
