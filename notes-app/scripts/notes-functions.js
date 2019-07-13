@@ -2,7 +2,6 @@
 // read existing notes from local storage
 const getSavedNotes = () => {
     const notesJSON = localStorage.getItem('notes')
-
     try {
         return notesJSON ? JSON.parse(notesJSON) : []
     }catch (e) {
@@ -10,7 +9,6 @@ const getSavedNotes = () => {
     }
     
 }
-
 const generateLastEdited = (timestamp) => `Last edited ${moment(timestamp).fromNow()}`
 
 //save notes to local storage
@@ -29,25 +27,26 @@ const removeNote = (id) => {
 //generate the dom structure for a note
 
 const generateNoteDOM = (item) => {
-    const noteEl = document.createElement('div')
-    const textEl = document.createElement('a')
-    const button = document.createElement('button')
-    //setup remove note button
-    button.textContent = 'x'
-    button.addEventListener('click', (e) => {
-        removeNote(item.id)
-        saveNotes(notes)
-        renderNotes(notes, filters)
-    })
-    noteEl.appendChild(button)
+    const noteEl = document.createElement('a')
+    const textEl = document.createElement('p')
+    const statusEl = document.createElement('p')
         //setup the title text
         if(item.title.length > 0){
             textEl.innerHTML = item.title
         }else {
             textEl.textContent = 'Unnamed note'
         }
-        textEl.href = `edit.html#${item.id}`
+        textEl.classList.add('list-item__title')
         noteEl.appendChild(textEl)
+
+        //setup the link
+        noteEl.href = `edit.html#${item.id}`
+        noteEl.classList.add('list-item')
+
+        //setup status message
+        statusEl.textContent = generateLastEdited(item.updatedAt)
+        statusEl.classList.add('list-item__subtitle')
+        noteEl.appendChild(statusEl)
         return noteEl
 }
 //sort notes by one of three ways
@@ -89,11 +88,20 @@ const sortNotes = (notes, sortBy) => {
 
 //render function notes 
 const renderNotes = (notes, filters) => {
+    const notesEl = document.querySelector('#notes')
     notes = sortNotes(notes, filters.sortBy)
-    document.querySelector('#notes').innerHTML = '';
     const filteredNotes = notes.filter((note) => note.title.toLowerCase().includes(filters.searchText.toLowerCase()))
-    filteredNotes.forEach((item) => {
-        const noteEl = generateNoteDOM(item)
-        document.querySelector('#notes').appendChild(noteEl)
-    }) 
+    notesEl.innerHTML = '';
+    if (filteredNotes.length > 0) {
+        filteredNotes.forEach((item) => {
+            const noteEl = generateNoteDOM(item)
+            notesEl.appendChild(noteEl)
+        }) 
+    } else {
+        const emptyMessage = document.createElement('p')
+        emptyMessage.classList.add('empty-message')
+        emptyMessage.textContent = 'Create a note to get started!'
+        notesEl.appendChild (emptyMessage)
+    }
+    
 }

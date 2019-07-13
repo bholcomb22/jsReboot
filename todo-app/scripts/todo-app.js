@@ -15,15 +15,21 @@ document.querySelector('#filter-todo').addEventListener('input', (e) => {
 })
 
 document.querySelector('#new-todo').addEventListener('submit', (e) => {
+    const text = e.target.elements.todoInput.value.trim()
     e.preventDefault();
-    todo.push({
-        id: uuidv4(), 
-        text: e.target.elements.todoInput.value, 
-        isCompleted: false
-    })
-    saveTodos(todo);
-    e.target.elements.todoInput.value = ''
-    renderTodos(todo, filters)
+    if(text.length > 0) {
+        todo.push({
+            id: uuidv4(), 
+            text, 
+            isCompleted: false
+        })
+        saveTodos(todo);
+        e.target.elements.todoInput.value = ''
+        renderTodos(todo, filters)
+    } else {
+        
+    }
+    
 })
 
 document.querySelector('#hide-completed').addEventListener('change', (e) => {
